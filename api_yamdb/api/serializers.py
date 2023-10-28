@@ -47,3 +47,31 @@ class TitleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Title
         fields = ('id', 'name', 'year', 'description', 'genre', 'category')
+
+
+class TokenSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    confirmation_code = serializers.CharField()
+
+    class Meta:
+        model = User
+        fields = ('username', 'confirmation_code')
+
+
+class SignupSerializer(serializers.ModelSerializer):
+    username = serializers.CharField()
+    email = serializers.EmailField()
+
+    class Meta:
+        fields = ('username', 'email')
+        model = User
+    
+    def validate_email(self, email):
+        if User.objects.exists(email=email):
+            raise serializers.ValidationError({'email': 'Email уже используется.'})
+        return email
+
+    def validate_username(self, username):
+        if User.objects.exists(username=username):
+            raise serializers.ValidationError({'username': 'Имя пользователя уже используется.'})
+        return username

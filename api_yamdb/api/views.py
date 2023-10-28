@@ -17,7 +17,6 @@ User = get_user_model()
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = None
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
     lookup_field = 'username'
@@ -49,7 +48,6 @@ class GenreViewSet(CreateListDestroyModelMixin):
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()  # Ошибка. Неоткуда получать рейтинг для произведения
     serializer_class = TitleSerializer
-    permission_classes = None
     filter_backends = (DjangoFilterBackend,)
     filterset_class = CustomTitleFilter
 

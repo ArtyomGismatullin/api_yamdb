@@ -6,9 +6,11 @@ from api.views import (
     CategoryViewSet,
     GenreViewSet,
     TitleViewSet,
+    UserViewSet,
     get_token,
     get_signup
 )
+
 
 app_name = 'api'
 
@@ -16,6 +18,7 @@ router = DefaultRouter()
 router.register('categories', CategoryViewSet, basename='category')
 router.register('genres', GenreViewSet, basename='genre')
 router.register('titles', TitleViewSet, basename='title')
+router.register('users', UserViewSet)
 
 urlpatterns = [
     path('v1/', include(router.urls)),

@@ -48,7 +48,7 @@ def get_signup(request):
         message=f'Твой код: {confirmation_code}',
         from_email=None,
         recipient_list=[user.email],
-        fail_silently=True,
+        fail_silently=False,
     )
 
     return Response(serializer.data, status=status.HTTP_200_OK)

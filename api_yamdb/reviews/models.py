@@ -1,8 +1,12 @@
 from django.conf import settings
-from django.core.validators import MaxValueValidator
+
+from django.contrib.auth import get_user_model
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from api.validators import get_current_year
+
+User = get_user_model()
 
 
 class CategoryGenre(models.Model):
@@ -63,3 +67,45 @@ class GenreTitle(models.Model):
 
     def __str__(self):
         return f'{self.genre} {self.title}'
+
+
+class Review(models.Model):
+
+    text = models.TextField(verbose_name='текст')
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Aвтор'
+    )
+    score = models.PositiveIntegerField(
+        verbose_name='Oценка',
+        validators=[
+            MinValueValidator(1, message='Оценка не может быть меньше 1'),
+            MaxValueValidator(10, message='Оценка не может быть больше 10'),
+        ]
+    )
+    pub_date = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата публикации',
+    )
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        verbose_name='произведение',
+        null=True
+    )
+
+    class Meta:
+        default_related_name = 'reviews'
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
+        ordering = ('-pub_date',)
+        constraints = (
+            models.UniqueConstraint(
+                fields=['author', 'title'],
+                name='unique_author_title'
+            ),
+        )
+
+    def __str__(self):
+        return self.text[:settings.LIMIT_CHAR_FIELD]

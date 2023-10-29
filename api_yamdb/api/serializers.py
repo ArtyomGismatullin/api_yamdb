@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-
-from reviews.models import Category, Genre, Title
+from rest_framework.exceptions import MethodNotAllowed
+from reviews.models import Category, Genre, Review, Title
 
 User = get_user_model()
 
@@ -31,11 +31,12 @@ class TitleGetSerializer(serializers.ModelSerializer):
     rating = serializers.IntegerField(read_only=True)
     category = CategorySerializer(read_only=True)
     genre = GenreSerializer(many=True, read_only=True)
+    rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Title
         fields = (
-            'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
+            'id', 'name', 'year', 'rating', 'description', 'genre', 'category', 'rating',
         )
 
 
@@ -76,3 +77,24 @@ class SignupSerializer(serializers.ModelSerializer):
         if User.objects.exists(username=username):
             raise serializers.ValidationError({'username': 'Имя пользователя уже используется.'})
         return username
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+
+    author = serializers.StringRelatedField(
+        read_only=True
+    )
+
+    class Meta:
+        model = Review
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
+
+    def validate(self, data):
+        if not self.context.get('request').method == 'POST':
+            return data
+        if Review.objects.filter(
+            author=self.context.get('request').user,
+            title=self.context.get('view').kwargs.get('title_id')
+        ).exists():
+            raise serializers.ValidationError('Отзыв уже оставлен')
+        return data

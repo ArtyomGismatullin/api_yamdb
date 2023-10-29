@@ -4,13 +4,15 @@ from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, viewsets, generics, status
+from rest_framework import filters, viewsets, status
 from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import (
+    AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
+)
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
-from reviews.models import Category, Genre, Title
+from reviews.models import Category, Genre, Review, Title
 from api.filters import CustomTitleFilter
 from api.mixins import CreateListDestroyModelMixin
 from api.serializers import (
@@ -22,7 +24,8 @@ from api.serializers import (
     UserEditSerializer,
     SignupSerializer,
     TokenSerializer,
-    ReviewSerializer
+    ReviewSerializer,
+    CommentSerializer
 )
 from api.permissions import (
     IsAdmin,
@@ -139,3 +142,20 @@ class ReviewViewSet(viewsets.ModelViewSet):
             author=self.request.user,
             title=self.get_title()
         )
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+    permission_classes = (
+        IsAuthenticatedOrReadOnly,
+        IsAdminModeratorOwnerOrReadOnly
+    )
+
+    def get_review(self):
+        return get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+
+    def get_queryset(self):
+        return self.get_review().comments.all()
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user, review=self.get_review())

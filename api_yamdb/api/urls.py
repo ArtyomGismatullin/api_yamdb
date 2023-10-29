@@ -1,5 +1,4 @@
 from django.urls import include, path
-from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from api.views import (
@@ -11,11 +10,12 @@ from api.views import (
     get_token,
     get_signup
 )
+from api.routers import NoPutRouter
 
 
 app_name = 'api'
 
-router = DefaultRouter()
+router = NoPutRouter()
 router.register('categories', CategoryViewSet, basename='category')
 router.register('genres', GenreViewSet, basename='genre')
 router.register('titles', TitleViewSet, basename='title')

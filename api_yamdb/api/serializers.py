@@ -12,6 +12,14 @@ class UserSerializer(serializers.ModelSerializer):
         fields = (
             'username', 'email', 'first_name', 'last_name', 'bio', 'role'
         )
+
+
+class UserEditSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'username', 'email', 'first_name', 'last_name', 'bio', 'role'
+        )
         read_only_fields = ('role',)
 
 
@@ -31,7 +39,6 @@ class TitleGetSerializer(serializers.ModelSerializer):
     rating = serializers.IntegerField(read_only=True)
     category = CategorySerializer(read_only=True)
     genre = GenreSerializer(many=True, read_only=True)
-    rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Title
@@ -89,7 +96,6 @@ class SignupSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-
     author = serializers.StringRelatedField(
         read_only=True
     )
@@ -102,8 +108,8 @@ class ReviewSerializer(serializers.ModelSerializer):
         if not self.context.get('request').method == 'POST':
             return data
         if Review.objects.filter(
-            author=self.context.get('request').user,
-            title=self.context.get('view').kwargs.get('title_id')
+                author=self.context.get('request').user,
+                title=self.context.get('view').kwargs.get('title_id')
         ).exists():
             raise serializers.ValidationError('Отзыв уже оставлен')
         return data

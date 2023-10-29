@@ -19,6 +19,7 @@ from api.serializers import (
     TitleGetSerializer,
     TitleSerializer,
     UserSerializer,
+    UserEditSerializer,
     SignupSerializer,
     TokenSerializer,
     ReviewSerializer
@@ -40,19 +41,19 @@ class UserViewSet(viewsets.ModelViewSet):
     search_fields = ('username',)
     lookup_field = 'username'
 
-    @action(methods=['GET', 'PATCH'], detail=False,
+    @action(methods=['get', 'patch'], detail=False,
             permission_classes=(IsAuthenticated,),
             url_path='me', url_name='my profile')
     def profile(self, request, *args, **kwargs):
         if request.method == 'PATCH':
-            serializer = UserSerializer(
+            serializer = UserEditSerializer(
                 request.user, data=request.data,
                 partial=True, context={'request': request}
             )
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-        serializer = UserSerializer(request.user)
+        serializer = UserEditSerializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -121,7 +122,6 @@ def get_token(request):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-
     serializer_class = ReviewSerializer
     permission_classes = (
         IsAuthenticatedOrReadOnly,

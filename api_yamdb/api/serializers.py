@@ -67,16 +67,25 @@ class SignupSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('username', 'email')
         model = User
-    
-    def validate_email(self, email):
-        if User.objects.exists(email=email):
-            raise serializers.ValidationError({'email': 'Email уже используется.'})
-        return email
 
-    def validate_username(self, username):
-        if User.objects.exists(username=username):
-            raise serializers.ValidationError({'username': 'Имя пользователя уже используется.'})
-        return username
+    def validate(self, data):
+        if data.get('username') == 'me':
+            raise serializers.ValidationError(
+                'Имя пользователя "me" недопустимо!'
+            )
+        if User.objects.filter(username=data.get('username')):
+            raise serializers.ValidationError(
+                'Имя пользователя уже занято!'
+            )
+        if User.objects.filter(username=data.get('email')):
+            raise serializers.ValidationError(
+                'Пользователь с такой почтой уже занят!'
+            )
+        if data.get('role') not in User.ROLE_CHOICE:
+            raise serializers.ValidationError(
+                'Указана несуществующая роль.'
+            )
+        return data
 
 
 class ReviewSerializer(serializers.ModelSerializer):

@@ -42,7 +42,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET', 'PATCH'], detail=False,
             permission_classes=(IsAuthenticated,),
-            url_path='me', url_name='My profile')
+            url_path='me', url_name='my profile')
     def profile(self, request, *args, **kwargs):
         if request.method == 'PATCH':
             serializer = UserSerializer(
@@ -50,7 +50,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 partial=True, context={'request': request}
             )
             serializer.is_valid(raise_exception=True)
-            serializer.save(role=request.user.role)
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         serializer = UserSerializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -3,9 +3,9 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, viewsets, generics, status, permissions
+from rest_framework import filters, viewsets, generics, status
 from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
@@ -39,7 +39,7 @@ class UserViewSet(viewsets.ModelViewSet):
     lookup_field = 'username'
 
     @action(methods=['GET', 'PATCH'], detail=False,
-            permission_classes=(permissions.IsAuthenticated,),
+            permission_classes=(IsAuthenticated,),
             url_path='me', url_name='My profile')
     def profile(self, request, *args, **kwargs):
         instance = self.request.user
@@ -63,7 +63,7 @@ class GenreViewSet(CreateListDestroyModelMixin):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()  # Ошибка. Неоткуда получать рейтинг для произведения
+    queryset = Title.objects.all()
     serializer_class = TitleSerializer
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)

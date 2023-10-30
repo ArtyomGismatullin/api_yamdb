@@ -4,11 +4,9 @@ from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, viewsets, status
-from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.permissions import (
-    AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
-)
+from rest_framework import filters, mixins, viewsets, generics, status
+from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
@@ -83,45 +81,43 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitleSerializer
 
 
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def get_signup(request):
-    serializer = SignupSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-    user = get_object_or_404(
-        User,
-        username=serializer.validated_data['username']
-    )
-    confirmation_code = default_token_generator.make_token(user)
-    send_mail(
-        subject='Код подтверждения',
-        message=f'Твой код: {confirmation_code}',
-        from_email=None,
-        recipient_list=[user.email],
-        fail_silently=False,
-    )
+class SignupViewSet(mixins.CreateModelMixin,
+                    viewsets.GenericViewSet):
+    queryset = User.objects.all()
+    serializer_class = SignupSerializer
+    permission_classes = (AllowAny,)
 
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    def create(self, request):
+        serializer = SignupSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user, _ = User.objects.get_or_create(**serializer.validated_data)
+        confirmation_code = default_token_generator.make_token(user)
+        send_mail(
+            subject='Код подтверждения.',
+            message=f'Твой код: {confirmation_code}',
+            from_email=None,
+            recipient_list=(user.email,),
+            fail_silently=False,
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def get_token(request):
-    serializer = TokenSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    user = get_object_or_404(
-        User,
-        username=serializer.validated_data['username']
-    )
+class TokenViewSet(mixins.CreateModelMixin,
+                   viewsets.GenericViewSet):
+    queryset = User.objects.all()
+    serializer_class = TokenSerializer
+    permission_classes = (AllowAny,)
+    def create(self, request):
+        serializer = TokenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        username = serializer.validated_data.get('username')
+        confirmation_code = serializer.validated_data.get('confirmation_code')
+        user = get_object_or_404(User, username=username)
+        if default_token_generator.check_token(user, confirmation_code):
+            token = AccessToken.for_user(user)
+            return Response({'token': str(token)}, status=status.HTTP_200_OK)     
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    if default_token_generator.check_token(
-            user, serializer.validated_data['confirmation_code']
-    ):
-        token = AccessToken.for_user(user)
-        return Response({'token': str(token)}, status=status.HTTP_200_OK)
-
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

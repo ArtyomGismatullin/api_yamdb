@@ -74,8 +74,6 @@ class TokenSerializer(serializers.Serializer):
 
 
 class SignupSerializer(serializers.ModelSerializer):
-    username = serializers.CharField()
-    email = serializers.EmailField()
 
     class Meta:
         fields = ('username', 'email')
@@ -84,19 +82,15 @@ class SignupSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if data.get('username') == 'me':
             raise serializers.ValidationError(
-                'Имя пользователя "me" недопустимо!'
+                'Использовать имя "me" запрещено'
             )
         if User.objects.filter(username=data.get('username')):
             raise serializers.ValidationError(
-                'Имя пользователя уже занято!'
+                'Имя пользователя уже используется.'
             )
-        if User.objects.filter(username=data.get('email')):
+        if User.objects.filter(email=data.get('email')):
             raise serializers.ValidationError(
-                'Пользователь с такой почтой уже занят!'
-            )
-        if data.get('role') not in User.ROLE_CHOICE:
-            raise serializers.ValidationError(
-                'Указана несуществующая роль.'
+                'Email уже используется.'
             )
         return data
 

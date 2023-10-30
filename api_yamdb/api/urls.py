@@ -3,16 +3,15 @@ from rest_framework_simplejwt.views import TokenRefreshView
 
 from api.views import (
     CategoryViewSet,
+    CommentViewSet,
     GenreViewSet,
-    TitleViewSet,
     UserViewSet,
     ReviewViewSet,
-    CommentViewSet,
-    get_token,
-    get_signup
+    SignupViewSet
+    TitleViewSet,
+    TokenViewSet,
 )
 from api.routers import NoPutRouter
-
 
 app_name = 'api'
 
@@ -32,11 +31,8 @@ router.register(
 
 urlpatterns = [
     path('v1/', include(router.urls)),
-    path('v1/auth/token/', get_token, name='token'),
-    path('v1/auth/signup/', get_signup, name='signup'),
-    path(
-        'v1/auth/token/refresh/',
-        TokenRefreshView.as_view(),
-        name='token_refresh'
-    ),
+    path('v1/auth/token/', TokenViewSet.as_view({'post': 'create'}), name='token'),
+    path('v1/auth/signup/', SignupViewSet.as_view({'post': 'create'}), name='signup'),
+    path('v1/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
 ]

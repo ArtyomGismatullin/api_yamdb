@@ -102,7 +102,7 @@ class SignupViewSet(APIView):
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
+      
 class TokenViewSet(APIView):
 
     def post(self, request):

@@ -36,7 +36,7 @@ class User(AbstractUser):
         'Роль',
         max_length=settings.LIMIT_USERNAME,
         choices=ROLE_CHOICE,
-        default=USER
+        default=USER,
     )
 
     @property

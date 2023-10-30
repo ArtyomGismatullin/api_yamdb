@@ -1,5 +1,4 @@
 from django.conf import settings
-
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -52,10 +51,10 @@ class Title(models.Model):
     )
 
     class Meta:
+        ordering = ('name',)
         default_related_name = 'titles'
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
-        ordering = ('name',)
 
     def __str__(self):
         return self.name

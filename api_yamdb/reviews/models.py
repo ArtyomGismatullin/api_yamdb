@@ -109,3 +109,31 @@ class Review(models.Model):
 
     def __str__(self):
         return self.text[:settings.LIMIT_CHAR_FIELD]
+
+
+class Comment(models.Model):
+    text = models.TextField(verbose_name='текст')
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Aвтор'
+    )
+    pub_date = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата публикации',
+        db_index=True
+    )
+    review = models.ForeignKey(
+        Review,
+        on_delete=models.CASCADE,
+        verbose_name='oтзыв',
+    )
+
+    class Meta:
+        default_related_name = 'comments'
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+        ordering = ('-pub_date',)
+
+    def __str__(self):
+        return self.text[:settings.LIMIT_CHAR_FIELD]

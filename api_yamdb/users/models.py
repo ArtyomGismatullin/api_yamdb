@@ -1,7 +1,8 @@
-from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
+
+from api_yamdb import settings
 
 
 class User(AbstractUser):
@@ -41,6 +42,10 @@ class User(AbstractUser):
     @property
     def is_admin(self):
         return self.role == self.ADMIN
+
+    @property
+    def is_moderator(self):
+        return self.role == self.MODERATOR
 
     class Meta:
         verbose_name = 'Пользователь'

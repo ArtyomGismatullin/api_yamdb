@@ -108,9 +108,6 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10
 }
@@ -135,3 +132,5 @@ LIMIT_EMAIL = 254
 LIMIT_SLUG = 50
 
 LIMIT_NAME = 256
+
+LIMIT_CHAR_FIELD = 30

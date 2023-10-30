@@ -70,7 +70,6 @@ class GenreTitle(models.Model):
 
 
 class Review(models.Model):
-
     text = models.TextField(verbose_name='текст')
     author = models.ForeignKey(
         User,

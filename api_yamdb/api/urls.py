@@ -7,10 +7,9 @@ from api.views import (
     GenreViewSet,
     TitleViewSet,
     UserViewSet,
-    get_token,
-    get_signup
+    TokenViewSet,
+    SignupViewSet
 )
-
 
 app_name = 'api'
 
@@ -22,7 +21,7 @@ router.register('users', UserViewSet)
 
 urlpatterns = [
     path('v1/', include(router.urls)),
-    path('v1/auth/token/', get_token, name='token'),
-    path('v1/auth/signup/', get_signup, name='signup'),
+    path('v1/auth/token/', TokenViewSet.as_view({'post': 'create'}), name='token'),
+    path('v1/auth/signup/', SignupViewSet.as_view({'post': 'create'}), name='signup'),
     path('v1/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

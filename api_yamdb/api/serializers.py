@@ -59,19 +59,22 @@ class TokenSerializer(serializers.Serializer):
 
 
 class SignupSerializer(serializers.ModelSerializer):
-    username = serializers.CharField()
-    email = serializers.EmailField()
 
     class Meta:
         fields = ('username', 'email')
         model = User
     
-    def validate_email(self, email):
-        if User.objects.exists(email=email):
-            raise serializers.ValidationError({'email': 'Email уже используется.'})
-        return email
-
-    def validate_username(self, username):
-        if User.objects.exists(username=username):
-            raise serializers.ValidationError({'username': 'Имя пользователя уже используется.'})
-        return username
+    def validate(self, data):
+        if data.get('username') == 'me':
+            raise serializers.ValidationError(
+                'Использовать имя "me" запрещено'
+            )
+        if User.objects.filter(username=data.get('username')):
+            raise serializers.ValidationError(
+                'Имя пользователя уже используется.'
+            )
+        if User.objects.filter(email=data.get('email')):
+            raise serializers.ValidationError(
+                'Email уже используется.'
+            )
+        return data

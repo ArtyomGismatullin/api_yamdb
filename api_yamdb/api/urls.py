@@ -1,17 +1,17 @@
 from django.urls import include, path
 from rest_framework_simplejwt.views import TokenRefreshView
 
+from api.routers import NoPutRouter
 from api.views import (
     CategoryViewSet,
     CommentViewSet,
     GenreViewSet,
-    UserViewSet,
     ReviewViewSet,
     SignupViewSet,
     TitleViewSet,
     TokenViewSet,
+    UserViewSet,
 )
-from api.routers import NoPutRouter
 
 app_name = 'api'
 
@@ -33,6 +33,9 @@ urlpatterns = [
     path('v1/', include(router.urls)),
     path('v1/auth/token/', TokenViewSet.as_view(), name='token'),
     path('v1/auth/signup/', SignupViewSet.as_view(), name='signup'),
-    path('v1/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-
+    path(
+        'v1/auth/token/refresh/',
+        TokenRefreshView.as_view(),
+        name='token_refresh'
+    ),
 ]

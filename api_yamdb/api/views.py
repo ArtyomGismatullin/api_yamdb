@@ -3,33 +3,38 @@ from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, viewsets, generics, status
+from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.permissions import (
+    AllowAny,
+    IsAuthenticated,
+    IsAuthenticatedOrReadOnly,
+)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from reviews.models import Category, Genre, Review, Title
 from api.filters import CustomTitleFilter
 from api.mixins import CreateListDestroyModelMixin
-from api.serializers import (
-    CategorySerializer,
-    GenreSerializer,
-    TitleGetSerializer,
-    TitleSerializer,
-    UserSerializer,
-    UserEditSerializer,
-    SignupSerializer,
-    TokenSerializer,
-    ReviewSerializer,
-    CommentSerializer
-)
 from api.permissions import (
     IsAdmin,
+    IsAdminModeratorOwnerOrReadOnly,
     IsAdminOrReadOnly,
-    IsAdminModeratorOwnerOrReadOnly
 )
+from api.serializers import (
+    CategorySerializer,
+    CommentSerializer,
+    GenreSerializer,
+    ReviewSerializer,
+    SignupSerializer,
+    TitleGetSerializer,
+    TitleSerializer,
+    TokenSerializer,
+    UserEditSerializer,
+    UserSerializer,
+)
+from reviews.models import Category, Genre, Review, Title
 
 User = get_user_model()
 
@@ -72,6 +77,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     serializer_class = TitleSerializer
     permission_classes = (IsAdminOrReadOnly,)
+    pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = CustomTitleFilter
 
@@ -102,7 +108,7 @@ class SignupViewSet(APIView):
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-      
+
 class TokenViewSet(APIView):
 
     def post(self, request):
@@ -112,7 +118,7 @@ class TokenViewSet(APIView):
             User, username=request.data.get('username')
         )
         if str('confirmation_code') == request.data.get(
-            'confirmation_code'
+                'confirmation_code'
         ):
             refresh = RefreshToken.for_user(user)
             token = {'token': str(refresh.access_token)}

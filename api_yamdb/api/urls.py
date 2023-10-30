@@ -7,7 +7,7 @@ from api.views import (
     GenreViewSet,
     UserViewSet,
     ReviewViewSet,
-    SignupViewSet
+    SignupViewSet,
     TitleViewSet,
     TokenViewSet,
 )
@@ -31,8 +31,8 @@ router.register(
 
 urlpatterns = [
     path('v1/', include(router.urls)),
-    path('v1/auth/token/', TokenViewSet.as_view({'post': 'create'}), name='token'),
-    path('v1/auth/signup/', SignupViewSet.as_view({'post': 'create'}), name='signup'),
+    path('v1/auth/token/', TokenViewSet.as_view(), name='token'),
+    path('v1/auth/signup/', SignupViewSet.as_view(), name='signup'),
     path('v1/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
 ]

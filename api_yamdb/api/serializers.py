@@ -83,14 +83,6 @@ class SignupSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Использовать имя "me" запрещено'
             )
-        if User.objects.filter(username=data.get('username')):
-            raise serializers.ValidationError(
-                'Имя пользователя уже используется.'
-            )
-        if User.objects.filter(email=data.get('email')):
-            raise serializers.ValidationError(
-                'Email уже используется.'
-            )
         return data
 
 

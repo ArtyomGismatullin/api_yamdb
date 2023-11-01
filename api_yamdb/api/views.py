@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.db.models import Avg
@@ -99,10 +101,11 @@ class SignupViewSet(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         user = User.objects.get(username=request.data.get('username'))
+        confirmation_code = default_token_generator.make_token(user)
         send_mail(
             subject='Код подтверждения.',
-            message=f'Твой код: {"confirmation_code"}',
-            from_email=None,
+            message=f'Твой код: {confirmation_code}',
+            from_email=settings.EMAIL_ADDRESS,
             recipient_list=(user.email,),
             fail_silently=False,
         )
@@ -117,8 +120,9 @@ class TokenViewSet(APIView):
         user = get_object_or_404(
             User, username=request.data.get('username')
         )
-        if str('confirmation_code') == request.data.get(
-                'confirmation_code'
+        if default_token_generator.check_token(
+            user,
+            serializer.validated_data['confirmation_code']
         ):
             refresh = RefreshToken.for_user(user)
             token = {'token': str(refresh.access_token)}

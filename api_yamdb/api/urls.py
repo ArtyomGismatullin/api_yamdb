@@ -29,13 +29,20 @@ router.register(
     basename='comments'
 )
 
+auth_urls = [
+    path(
+        'signup/', SignupViewSet.as_view(), name='signup',
+    ),
+    path(
+        'token/', TokenViewSet.as_view(), name='token'
+    ),
+    path(
+        'token/refresh/',
+        TokenRefreshView.as_view(), name='token_refresh'
+    ),
+]
+
 urlpatterns = [
     path('v1/', include(router.urls)),
-    path('v1/auth/token/', TokenViewSet.as_view(), name='token'),
-    path('v1/auth/signup/', SignupViewSet.as_view(), name='signup'),
-    path(
-        'v1/auth/token/refresh/',
-        TokenRefreshView.as_view(),
-        name='token_refresh'
-    ),
+    path('v1/auth/', include(auth_urls)),
 ]

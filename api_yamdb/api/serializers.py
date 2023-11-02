@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
@@ -66,7 +67,9 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
 class TokenSerializer(serializers.Serializer):
-    username = serializers.CharField()
+    username = serializers.CharField(
+        max_length=settings.LIMIT_USERNAME
+    )
     confirmation_code = serializers.CharField()
 
     class Meta:
@@ -75,6 +78,7 @@ class TokenSerializer(serializers.Serializer):
 
 
 class SignupSerializer(serializers.ModelSerializer):
+
     class Meta:
         fields = ('username', 'email')
         model = User

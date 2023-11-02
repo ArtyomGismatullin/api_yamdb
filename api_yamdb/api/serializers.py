@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.validators import RegexValidator
 from rest_framework import serializers
 
 from reviews.models import Category, Comment, Genre, Review, Title
@@ -13,15 +14,11 @@ class UserSerializer(serializers.ModelSerializer):
         fields = (
             'username', 'email', 'first_name', 'last_name', 'bio', 'role'
         )
-
-
-class UserEditSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = (
-            'username', 'email', 'first_name', 'last_name', 'bio', 'role'
-        )
-        read_only_fields = ('role',)
+        validators = [RegexValidator(
+            regex=r'^me$',
+            inverse_match=True,
+            message='Имя пользователя "me" недопустимо'
+        )]
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -34,6 +31,11 @@ class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('name', 'slug')
         model = Genre
+
+
+class RatingRelatedField(serializers.RelatedField):
+    def to_representation(self, value):
+        return value.rating
 
 
 class TitleGetSerializer(serializers.ModelSerializer):
@@ -51,7 +53,6 @@ class TitleGetSerializer(serializers.ModelSerializer):
             'description',
             'genre',
             'category',
-            'rating',
         )
 
 
@@ -60,10 +61,13 @@ class TitleSerializer(serializers.ModelSerializer):
         slug_field='slug', queryset=Category.objects.all())
     genre = serializers.SlugRelatedField(
         slug_field='slug', many=True, queryset=Genre.objects.all())
+    rating = RatingRelatedField(read_only=True)
 
-    class Meta:
+    class Meta(TitleGetSerializer.Meta):
         model = Title
-        fields = ('id', 'name', 'year', 'description', 'genre', 'category')
+        fields = (
+            'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
+        )
 
 
 class TokenSerializer(serializers.Serializer):
@@ -78,7 +82,6 @@ class TokenSerializer(serializers.Serializer):
 
 
 class SignupSerializer(serializers.ModelSerializer):
-
     class Meta:
         fields = ('username', 'email')
         model = User

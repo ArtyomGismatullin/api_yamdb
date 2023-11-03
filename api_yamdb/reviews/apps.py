@@ -4,4 +4,8 @@ from django.apps import AppConfig
 class ReviewsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'reviews'
+<<<<<<< Updated upstream
     verbose_name = 'Приложения'
+=======
+    verbose_name = 'Отзывы'
+>>>>>>> Stashed changes

@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from api.routers import NoPutRouter
+from api.routers import V1NoPutRouter
 from api.views import (
     CategoryViewSet,
     CommentViewSet,
@@ -15,11 +15,11 @@ from api.views import (
 
 app_name = 'api'
 
-router = NoPutRouter()
-router.register('categories', CategoryViewSet, basename='category')
-router.register('genres', GenreViewSet, basename='genre')
-router.register('titles', TitleViewSet, basename='title')
-router.register('users', UserViewSet)
+router = V1NoPutRouter()
+router.register('categories', CategoryViewSet, basename='categories')
+router.register('genres', GenreViewSet, basename='genres')
+router.register('titles', TitleViewSet, basename='titles')
+router.register('users', UserViewSet, basename='users')
 router.register(
     r'titles/(?P<title_id>\d+)/reviews', ReviewViewSet, basename='reviews'
 )

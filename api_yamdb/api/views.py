@@ -33,7 +33,6 @@ from api.serializers import (
     TitleGetSerializer,
     TitleSerializer,
     TokenSerializer,
-    UserEditSerializer,
     UserSerializer,
 )
 from reviews.models import Category, Genre, Review, Title
@@ -54,14 +53,14 @@ class UserViewSet(viewsets.ModelViewSet):
             url_path='me', url_name='my profile')
     def profile(self, request, *args, **kwargs):
         if request.method == 'PATCH':
-            serializer = UserEditSerializer(
+            serializer = UserSerializer(
                 request.user, data=request.data,
                 partial=True, context={'request': request}
             )
             serializer.is_valid(raise_exception=True)
-            serializer.save()
+            serializer.save(role=request.user.role)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        serializer = UserEditSerializer(request.user)
+        serializer = UserSerializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -76,7 +75,8 @@ class GenreViewSet(CreateListDestroyModelMixin):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
+    queryset = Title.objects.annotate(
+        rating=Avg('reviews__score')).order_by('name')
     serializer_class = TitleSerializer
     permission_classes = (IsAdminOrReadOnly,)
     pagination_class = LimitOffsetPagination
@@ -121,8 +121,8 @@ class TokenViewSet(APIView):
             User, username=request.data.get('username')
         )
         if default_token_generator.check_token(
-            user,
-            serializer.validated_data['confirmation_code']
+                user,
+                serializer.validated_data['confirmation_code']
         ):
             refresh = RefreshToken.for_user(user)
             token = {'token': str(refresh.access_token)}

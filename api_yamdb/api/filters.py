@@ -13,9 +13,6 @@ class CustomTitleFilter(filters.FilterSet):
     name = filters.CharFilter(
         field_name='name', lookup_expr='contains'
     )
-    year = filters.NumberFilter(
-        field_name='year', lookup_expr='iexact'
-    )
 
     class Meta:
         model = Title

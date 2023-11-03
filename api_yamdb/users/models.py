@@ -1,8 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
+from django.conf import settings
 from django.db import models
-
-from api_yamdb import settings
 
 
 class User(AbstractUser):
@@ -18,30 +17,32 @@ class User(AbstractUser):
         'Имя пользователя',
         max_length=settings.LIMIT_USERNAME,
         unique=True,
-        validators=[RegexValidator(
-            regex=r'^[\w.@+-]+\Z',
-            message='Недоступный символ для имени пользователя!'
-        )])
+        validators=[
+            RegexValidator(
+                regex=r'^[\w.@+-]+\Z',
+                message='Недоступный символ для имени пользователя!'
+            ),
+            RegexValidator(
+                regex=r'^me$',
+                inverse_match=True,
+                message='Имя пользователя "me" недопустимо'
+            )])
     email = models.EmailField(
         'Электронная почта',
         max_length=settings.LIMIT_EMAIL,
         unique=True
     )
-    first_name = models.CharField(
-        'Имя', blank=True, max_length=settings.LIMIT_USERNAME)
-    last_name = models.CharField(
-        'Фамилия', blank=True, max_length=settings.LIMIT_USERNAME)
     bio = models.TextField('О себе', blank=True)
     role = models.CharField(
         'Роль',
-        max_length=settings.LIMIT_USERNAME,
+        max_length=max(len(role) for role, _ in ROLE_CHOICE),
         choices=ROLE_CHOICE,
         default=USER,
     )
 
     @property
     def is_admin(self):
-        return self.role == self.ADMIN
+        return self.is_superuser or self.role == self.ADMIN
 
     @property
     def is_moderator(self):
@@ -50,4 +51,4 @@ class User(AbstractUser):
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
-        ordering = ('id',)
+        ordering = ('username',)

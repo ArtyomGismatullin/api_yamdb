@@ -23,9 +23,9 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework',
     'rest_framework_simplejwt',
-    'reviews.apps.ReviewsConfig',
+    'users.apps.UsersConfig',
     'api.apps.ApiConfig',
-    'users.apps.UsersConfig'
+    'reviews.apps.ReviewsConfig',
 ]
 
 MIDDLEWARE = [
@@ -87,7 +87,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-ru'
 
 TIME_ZONE = 'UTC'
 
@@ -133,3 +133,5 @@ LIMIT_SLUG = 50
 LIMIT_NAME = 256
 
 LIMIT_CHAR_FIELD = 30
+
+EMAIL_ADDRESS = 'yamdb@examle.com'

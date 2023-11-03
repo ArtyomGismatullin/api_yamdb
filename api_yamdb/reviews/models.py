@@ -127,6 +127,7 @@ class Review(BaseReview):
             ),
         )
 
+
 class Comment(BaseReview):
     review = models.ForeignKey(
         Review,

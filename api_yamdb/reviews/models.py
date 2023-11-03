@@ -73,27 +73,40 @@ class GenreTitle(models.Model):
         Title, verbose_name='Название', on_delete=models.CASCADE
     )
 
+    class Meta:
+        verbose_name = 'Название жанра'
+        verbose_name_plural = 'название жанров'
+
     def __str__(self):
         return f'{self.genre} {self.title}'
 
 
-class Review(models.Model):
+class BaseReview(models.Model):
     text = models.TextField(verbose_name='текст')
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         verbose_name='Aвтор'
     )
+    pub_date = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата публикации',
+    )
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return self.text[:settings.LIMIT_CHAR_FIELD]
+
+
+class Review(BaseReview):
     score = models.PositiveIntegerField(
         verbose_name='Oценка',
         validators=[
             MinValueValidator(1, message='Оценка не может быть меньше 1'),
             MaxValueValidator(10, message='Оценка не может быть больше 10'),
         ]
-    )
-    pub_date = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name='Дата публикации',
     )
     title = models.ForeignKey(
         Title,
@@ -114,22 +127,8 @@ class Review(models.Model):
             ),
         )
 
-    def __str__(self):
-        return self.text[:settings.LIMIT_CHAR_FIELD]
 
-
-class Comment(models.Model):
-    text = models.TextField(verbose_name='текст')
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        verbose_name='Aвтор'
-    )
-    pub_date = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name='Дата публикации',
-        db_index=True
-    )
+class Comment(BaseReview):
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
@@ -141,6 +140,3 @@ class Comment(models.Model):
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
         ordering = ('-pub_date',)
-
-    def __str__(self):
-        return self.text[:settings.LIMIT_CHAR_FIELD]

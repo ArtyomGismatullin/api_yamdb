@@ -1,7 +1,7 @@
 from rest_framework.routers import DefaultRouter
 
 
-class V1NoPutRouter(DefaultRouter):
+class NoPutRouter(DefaultRouter):
 
     def get_method_map(self, viewset, method_map):
         bound_methods = super().get_method_map(viewset, method_map)

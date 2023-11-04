@@ -9,6 +9,7 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
         fields = (
@@ -35,11 +36,6 @@ class GenreSerializer(serializers.ModelSerializer):
         model = Genre
 
 
-class RatingRelatedField(serializers.RelatedField):
-    def to_representation(self, value):
-        return value.rating
-
-
 class TitleGetSerializer(serializers.ModelSerializer):
     rating = serializers.IntegerField(read_only=True)
     category = CategorySerializer(read_only=True)
@@ -63,13 +59,16 @@ class TitleSerializer(serializers.ModelSerializer):
         slug_field='slug', queryset=Category.objects.all())
     genre = serializers.SlugRelatedField(
         slug_field='slug', many=True, queryset=Genre.objects.all())
-    rating = RatingRelatedField(read_only=True)
 
     class Meta(TitleGetSerializer.Meta):
         model = Title
         fields = (
-            'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
+            'name', 'year', 'description', 'genre', 'category'
         )
+
+    def to_representation(self, instance):
+        serializer = TitleGetSerializer(instance)
+        return serializer.data
 
 
 class TokenSerializer(serializers.Serializer):
@@ -84,6 +83,7 @@ class TokenSerializer(serializers.Serializer):
 
 
 class SignupSerializer(serializers.ModelSerializer):
+
     class Meta:
         fields = ('username', 'email')
         model = User

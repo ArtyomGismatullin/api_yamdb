@@ -33,9 +33,9 @@ class TitleAdmin(admin.ModelAdmin):
     search_fields = ('name', 'year', 'category')
     list_editable = ('category',)
 
+    @admin.display(description='Жанры')
     def get_genre(self, obj):
         return ', '.join([genre.name for genre in obj.genre.all()])
-    get_genre.short_description = 'Жанры'
 
 
 @admin.register(GenreTitle)

@@ -116,7 +116,7 @@ class Review(BaseReview):
         null=True
     )
 
-    class Meta:
+    class Meta(BaseReview.Meta):
         default_related_name = 'reviews'
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
@@ -135,7 +135,7 @@ class Comment(BaseReview):
         verbose_name='oтзыв',
     )
 
-    class Meta:
+    class Meta(BaseReview.Meta):
         default_related_name = 'comments'
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
